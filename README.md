@@ -142,6 +142,107 @@ No public HTTP API (worker-style service)
 ### Start everything
 ```bash
 docker compose up --build
+```
 
 
 ## 🔑 Try the System
+
+### 1️⃣ Login (get JWT)
+```bash
+curl -X POST http://localhost:3001/auth/login \
+  -H "content-type: application/json" \
+  -d '{"email":"you@example.com"}'
+```
+
+### 2️⃣ Call protected endpoint
+```bash
+curl http://localhost:3001/orders/me \
+  -H "authorization: Bearer <TOKEN>"
+```
+
+### 3️⃣ Create an order (triggers async event)
+```bash
+curl -X POST http://localhost:3001/orders \
+  -H "authorization: Bearer <TOKEN>" \
+  -H "content-type: application/json" \
+  -d '{"sku":"SKU-123","qty":2}'
+```
+You should see logs in notifications-service receiving the event.
+
+## 📈 Viewing Observability
+
+### Grafana
+
+- URL: http://localhost:3000
+- User: admin
+- Password: admin
+
+### View Traces
+
+- Grafana → Explore → Tempo
+- Filter by service:
+```bash
+{resource.service.name="api-gateway"}
+```
+
+### View Logs
+
+- Grafana → Explore → Loki
+  ```bash
+  {container=~".*orders-service.*"}
+  ```
+
+### View Metrics
+
+Grafana → Explore → Prometheus
+
+---
+
+## ⚙️ Scaling a Service
+
+Example: scale Orders Service to 3 replicas
+
+```bash
+docker compose up --scale orders-service=3
+```
+The gateway will distribute requests across instances.
+
+---
+
+## 💥 Resilience Features
+
+- Request timeouts
+- Automatic retries
+- Circuit breaker for internal calls
+- Graceful shutdown
+- Health checks
+  
+Try stopping a service and observe:
+- retries in logs
+- circuit breaker opening
+- traces showing failures
+
+---
+
+## 🎯 Who This Repo Is For
+
+- Developers learning distributed systems
+- Backend engineers preparing for interviews
+- Teams bootstrapping microservice architectures
+- Anyone who wants a real, runnable reference
+
+---
+
+## 🛣 Roadmap / Ideas
+
+- Trace context propagation over NATS
+- Kubernetes manifests
+- Rate limiting at gateway
+- Failure injection demos
+- Service mesh comparison
+
+---
+
+## 📜 License
+
+MIT — use freely, fork, modify, and build on it.
