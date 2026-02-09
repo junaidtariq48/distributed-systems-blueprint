@@ -43,12 +43,11 @@ This is **not a toy example**. It mirrors real-world patterns used in production
       ┌─────────────────┼─────────────────┐
       │                 │                 │
 ┌─────────▼─────────┐ ┌─────▼─────────┐ ┌─────▼────────────┐
-│ Users Service     │ │ Orders Service│ │ Notifications    │
-│ (Internal HTTP)   │ │ (HTTP + NATS) │ │ Service (Worker).│
-└───────────────────┘ └─────┬─────────┘ └────────┬─────────┘
-                    │ │
-          └─────── NATS ────────┘
-          
+│ Users Service │ │ Orders Service │ │ Notifications │
+│ (Internal HTTP) │ │ (HTTP + NATS) │ │ Service (Worker) │
+└───────────────────┘ └─────┬──────────┘ └────────┬─────────┘
+│ │
+└─────── NATS ────────┘
 
 
 ### Communication Patterns
