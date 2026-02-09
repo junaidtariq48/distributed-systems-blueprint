@@ -1,22 +1,23 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { OrdersServiceController } from './orders-service.controller';
-import { OrdersServiceService } from './orders-service.service';
+import { Body, Controller, Post } from '@nestjs/common';
+import { NatsClient } from './nats.client';
 
-describe('OrdersServiceController', () => {
-  let ordersServiceController: OrdersServiceController;
+@Controller('orders')
+export class OrdersServiceController {
+  constructor(private readonly nats: NatsClient) {}
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [OrdersServiceController],
-      providers: [OrdersServiceService],
-    }).compile();
+  @Post()
+  async create(@Body() body: { userId: string; sku: string; qty: number }) {
+    const order = {
+      id: `ord_${Date.now()}`,
+      userId: body.userId,
+      sku: body.sku,
+      qty: body.qty,
+      createdAt: new Date().toISOString(),
+    };
 
-    ordersServiceController = app.get<OrdersServiceController>(OrdersServiceController);
-  });
+    // publish async event
+    await this.nats.publish('orders.created', order);
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(ordersServiceController.getHello()).toBe('Hello World!');
-    });
-  });
-});
+    return { ok: true, order };
+  }
+}

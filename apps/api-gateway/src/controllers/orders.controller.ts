@@ -24,7 +24,7 @@ export class OrdersController {
   @Post()
   async createOrder(
     @Headers('authorization') auth?: string,
-    @Body() body?: { sku: string; qty: number }
+    @Body() body?: { sku: string; qty: number },
   ) {
     const user = this.requireUser(auth);
     return this.orders.post(`/orders`, { userId: user.sub, ...body });

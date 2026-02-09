@@ -1,8 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { OrdersServiceModule } from './orders-service.module';
+import { Logger } from 'nestjs-pino';
+import { startTracing } from '@app/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(OrdersServiceModule);
-  await app.listen(process.env.port ?? 3000);
+  await startTracing('orders-service');
+
+  const app = await NestFactory.create(OrdersServiceModule, {
+    bufferLogs: true,
+  });
+  app.useLogger(app.get(Logger));
+
+  const port = Number(process.env.ORDERS_SERVICE_PORT || 3003);
+  await app.listen(port);
 }
 bootstrap();

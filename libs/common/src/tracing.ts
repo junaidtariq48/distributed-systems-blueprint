@@ -3,18 +3,12 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
-import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { Instrumentation } from '@opentelemetry/instrumentation';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 
 export async function startTracing(serviceName: string) {
-  const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318';
-
-  const resource = new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
-    [SemanticResourceAttributes.SERVICE_NAMESPACE]:
-      process.env.OTEL_SERVICE_NAMESPACE || 'distributed-systems-blueprint',
-  });
+  const endpoint =
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318';
 
   const traceExporter = new OTLPTraceExporter({
     url: `${endpoint}/v1/traces`,
@@ -29,17 +23,17 @@ export async function startTracing(serviceName: string) {
     exportIntervalMillis: 5000,
   });
 
-  const instrumentations: Instrumentation[] = [
-    ...getNodeAutoInstrumentations({
-      // keep defaults; auto-instruments http, fetch, dns, etc.
-    }),
-  ];
+  const resource = resourceFromAttributes({
+    [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+    [SemanticResourceAttributes.SERVICE_NAMESPACE]:
+      process.env.OTEL_SERVICE_NAMESPACE || 'distributed-systems-blueprint',
+  });
 
   const sdk = new NodeSDK({
     resource,
     traceExporter,
-    metricReader,
-    instrumentations,
+    metricReaders: [metricReader],
+    instrumentations: [...getNodeAutoInstrumentations()],
   });
 
   await sdk.start();

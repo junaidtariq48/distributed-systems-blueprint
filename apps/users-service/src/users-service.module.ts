@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { buildLogger } from '@app/common';
+import { buildLogger } from '@app/common/logger';
 import { UsersServiceController } from './users-service.controller';
-import { UsersServiceService } from './users-service.service';
 
 @Module({
-  imports: [buildLogger['user-service']],
+  imports: [buildLogger('user-service')],
   controllers: [UsersServiceController],
-  providers: [UsersServiceService],
+  providers: [],
 })
 export class UsersServiceModule {}

@@ -7,7 +7,7 @@ RUN npm ci
 COPY . .
 
 ARG APP
-RUN npm run build ${APP}
+RUN npm run build -- ${APP}
 
 FROM node:24-alpine AS runtime
 WORKDIR /app

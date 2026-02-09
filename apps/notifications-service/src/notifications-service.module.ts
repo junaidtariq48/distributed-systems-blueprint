@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { NotificationsServiceController } from './notifications-service.controller';
-import { NotificationsServiceService } from './notifications-service.service';
+import { buildLogger } from '@app/common/logger';
+import { NotificationsWorker } from './notifications.worker';
 
 @Module({
-  imports: [],
-  controllers: [NotificationsServiceController],
-  providers: [NotificationsServiceService],
+  imports: [buildLogger('notification-service')],
+  providers: [NotificationsWorker],
 })
 export class NotificationsServiceModule {}
